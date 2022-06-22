@@ -11,14 +11,16 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+const (
+	channelID = "986555059775107073"
+)
+
 type Specification struct {
 	Token string
 }
 type UserState struct {
 	Name string
 }
-
-var ()
 
 func main() {
 	var s Specification
@@ -67,8 +69,19 @@ func voiceStateUpdate(s *discordgo.Session, v *discordgo.VoiceStateUpdate) {
 		log.Printf("User err:%s", err)
 		return
 	}
-	msg := fmt.Sprintf("%sが[%s]に入りました", u.Username, c.Name)
-	s.ChannelMessageSend(v.ChannelID, msg)
-	log.Printf("%sが[%s]に入りました", u.Username, c.Name)
+	member, err := s.GuildMember(v.GuildID, v.UserID)
+	if err != nil {
+		log.Printf("User err:%s", err)
+		return
+	}
+	name := member.Nick
+	if len(name) == 0 {
+		name = u.Username
+	}
+
+	msg := fmt.Sprintf("%sが[%s]に入りました", name, c.Name)
+	//s.ChannelMessageSend(v.ChannelID, msg)
+	s.ChannelMessageSend(channelID, msg)
+	log.Printf("%sが[%s]に入りました", name, c.Name)
 	//pp.Println(v)
 }
